@@ -158,7 +158,7 @@ document.addEventListener("click", event => {
   }
 });
 
-document.addEventListener("keydown", function(event) {
+document.addEventListener("keydown", event => {
     if (event.target.matches(".usertext-edit textarea")) {
       if (event.key == "Enter" && (event.ctrlKey || event.metaKey)) {
         event.target.closest("form").querySelector("button.save").click();
@@ -189,8 +189,8 @@ function display_error_message() {
 }
 
 function isDupe(item, array) {
-  for (let i = 0; i < array.length; i++) {
-    if (item.data.permalink == array[i].data.permalink) {
+  for (let entry in array.length) {
+    if (item.data.permalink == array[entry].data.permalink) {
       return true;
     }
   }
@@ -203,7 +203,7 @@ if (localStorage && localStorage.getItem('rifSort')) {
 }
 
 function sort_threads(threads) {
-  return threads.sort(function(a, b) {
+  return threads.sort((a, b) => {
     let conda, condb;
     switch(sort) {
       case "subreddit":
@@ -620,7 +620,7 @@ function append_extension(thread_select, header, comments, time) {
       timestamp += `${hours}:`
     }
     timestamp += `${minutes}:${("0" + seconds).slice(-2)}`
-    redditComments.querySelector("div#title p.title").insertAdjacentHTML("beforeend", `<span> -- </span> <a class="title titleTime" href="javascript:(0)" onclick="document.getElementsByClassName('video-stream')[0].currentTime = ${time}">[${timestamp}]</title>`);
+    redditComments.querySelector("div#title p.title").insertAdjacentHTML("beforeend", `<span> -- </span> <a class="title titleTime" onclick="document.getElementsByClassName('video-stream')[0].currentTime = ${time}">[${timestamp}]</title>`);
   }
 
   let threadSelect = redditComments.querySelector("#thread_select");

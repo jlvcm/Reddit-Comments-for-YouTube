@@ -349,6 +349,10 @@ position: relative;
 bottom: 1px;
 }
 
+.titleTime {
+	cursor: pointer;
+}
+
 /* Start dark mode */
 
 html[dark] #loading_roy {
