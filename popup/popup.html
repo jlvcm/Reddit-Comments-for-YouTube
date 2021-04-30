@@ -4,18 +4,31 @@
     <link rel="stylesheet" href="popup.css"/>
 </head>
 <html lang="en">
-    <body>
-    <h2>Settings</h2>
-    <div id="checkboxOptions">
-        <label><input type="checkbox" id="rememberToggleOption">Collapse comments by default.</label>
-        <label><input type="checkbox" id="collapseOption">Auto-hide children for top-level comments.</label>
-    </div>
+  <body>
+  <h2 id="settingsHeader">Settings</h2>
+  <div id="checkboxOptions">
+    <label><input type="checkbox" id="collapseOnLoad">Collapse comments by default.</label>
+    <label><input type="checkbox" id="hideChildren">Auto-hide children for top-level comments.</label>
+  </div><br>
 
-    <h3>Blacklist subreddits:</h3>
-    <div id="input"><input type="text" id="blacklistInput"><button id="blacklistButton">Add</button><button id="clearButton">Clear</button></div>
-    <p id="inputError">Invalid input! Letters, numbers, and underscores only.</p>
-    <p id="duplicateError">Sub is already blacklisted!</p>
-    <div id="blacklist">
-    </div>
-    </body>
+  <div id="defaultSort">
+    <label id="defaultSortLabel">Default comment sort:
+      <select id="defaultSortSelect">
+        <option id="bestSort" value="confidence">best</option>
+        <option id="topSort" value="top">top</option>
+        <option id="newSort" value="new">new</option>
+        <option id="controversialSort" value="controversial">controversial</option>
+        <option id="oldSort" value="old">old</option>
+        <option id="qaSort" value="qa">qa</option>
+      </select>
+    </label>
+  </div>
+
+  <h3 id="blacklistHeader">Blacklist subreddits:</h3>
+  <div id="input"><input type="text" id="blacklistInput"><button id="blacklistButton">Add</button><button id="clearButton">Clear</button></div>
+  <p id="inputError">Invalid input! Letters, numbers, and underscores only.</p>
+  <p id="duplicateError">Sub is already blacklisted!</p>
+  <div id="blacklist"></div><br>
+  <a href="https://ko-fi.com/tayloroneill" target="_blank" id="support">support the dev</span>
+  </body>
 </html>

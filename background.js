@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
+  function (request, _sender, sendResponse) {
     let formData = new FormData();
     if (request.data) {
       for (let key in request.data) {
@@ -8,57 +8,58 @@ chrome.runtime.onMessage.addListener(
     }
     switch(request.id) {
       case "setupComments":
-        fetch("https://old.reddit.com" + request.permalink + request.sort).then(response => response.text()).then(text => sendResponse({response: text.replace(/<\s*head[^>]*>.*?<\s*\/\s*head>/g, '')}));
+        fetch(`https://api.reddit.com/comments/${request.threadId}?sort=${request.sort}`).then(response => response.json()).then(json => sendResponse({response: json}));
         break;
 
-        case "getThreads":
-          Promise.all(request.urls.map(url => getThread(url)))
-          .then(promises => {
-            const threads = [];
-            promises.forEach(response => {
-              if (response != null) {
-                response.forEach(thread => threads.push(thread));
-              }
-            });
-            sendResponse({response: threads})
-          })
-          .catch(() => sendResponse({response: null}));
-          break; 
+      case "getThreads":
+        let urls = [`https://api.reddit.com/search.json?limit=100&sort=top&q=url:${request.videoId}+site:youtu.be`, `https://api.reddit.com/search.json?limit=100&sort=top&q=url:${request.videoId}+site:youtube.com`]
+        Promise.all(urls.map(url => getThread(url)))
+        .then(promises => {
+          const threads = [];
+          promises.forEach(response => {
+            if (response != null) {
+              response.forEach(thread => threads.push(thread));
+            }
+          });
+          sendResponse({response: threads})
+        })
+        .catch(() => sendResponse({response: null}));
+        break; 
 
       case "moreChildren":
-        fetch("https://old.reddit.com/api/morechildren", {
+        fetch("https://api.reddit.com/api/morechildren", {
           method: "POST",
           body: formData
         }).then(response => response.json()).then(json => sendResponse({response: json}));
         break;
 
       case "getMe":
-        fetch("https://old.reddit.com/api/me.json").then(response => response.json()).then(json => sendResponse({response: json}));
+        fetch("https://api.reddit.com/api/me.json").then(response => response.json()).then(json => sendResponse({response: json}));
         break;
 
       case "vote":
-        fetch("https://old.reddit.com/api/vote", {
+        fetch("https://api.reddit.com/api/vote", {
           method: "POST",
           body: formData
         });
         break;
 
       case "comment":
-        fetch("https://old.reddit.com/api/comment", {
+        fetch("https://api.reddit.com/api/comment", {
           method: "POST",
           body: formData
         }).then(response => response.json()).then(json => sendResponse({response: json}));
         break;
 
       case "edit":
-        fetch("https://old.reddit.com/api/editusertext", {
+        fetch("https://api.reddit.com/api/editusertext", {
           method: "POST",
           body: formData
         }).then(response => response.json()).then(json => sendResponse({response: json}));
         break;
 
       case "delete":
-        fetch("https://old.reddit.com/api/del", {
+        fetch("https://api.reddit.com/api/del", {
           method: "POST",
           body: formData
         }).then(response => response.json()).then(json => sendResponse({response: json}));

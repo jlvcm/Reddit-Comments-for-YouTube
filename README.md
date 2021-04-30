@@ -4,7 +4,7 @@
 
 An extension to display Reddit threads for YouTube videos.
 
-This is a fork of [Lucien Maloney's extension](https://github.com/lucienmaloney/reddit_comments_for_youtube_extension).
+This is a fork of [Lucien Maloney's extension](https://github.com/lucienmaloney/rcfy-container_for_youtube_extension).
 
 Supports:
 

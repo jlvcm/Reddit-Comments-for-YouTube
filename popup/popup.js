@@ -1,12 +1,12 @@
-var subredditPattern = new RegExp("^[a-zA-Z0-9_]+$");
+let subredditPattern = new RegExp("^[a-zA-Z0-9_]+$");
 
-document.addEventListener("DOMContentLoaded", event => {
-    chrome.storage.sync.get({childrenHiddenDefault: "false"}, function(result) {
+document.addEventListener("DOMContentLoaded", () => {
+    chrome.storage.sync.get({childrenHiddenDefault: "false"}, result => {
         if (result.childrenHiddenDefault == "true") {
-          document.querySelector("#collapseOption").checked = true;
+          document.getElementById("hideChildren").checked = true;
         };
       });
-    document.querySelector('#collapseOption').onchange = function() {
+    document.getElementById('hideChildren').onchange = () => {
         if (this.checked) {
             chrome.storage.sync.set({childrenHiddenDefault: "true"});
         }
@@ -15,12 +15,12 @@ document.addEventListener("DOMContentLoaded", event => {
         }
     };
 
-    chrome.storage.sync.get({collapseOnLoad: "false"}, function(result) {
+    chrome.storage.sync.get({collapseOnLoad: "false"}, result => {
         if (result.collapseOnLoad == "true") {
-            document.querySelector("#rememberToggleOption").checked = true;
+            document.getElementById("collapseOnLoad").checked = true;
         };
       });
-      document.querySelector('#rememberToggleOption').onchange = function(){
+      document.getElementById('collapseOnLoad').onchange = () => {
             if (this.checked) {
                 chrome.storage.sync.set({collapseOnLoad: "true"});
             }
@@ -29,9 +29,16 @@ document.addEventListener("DOMContentLoaded", event => {
             }
     };
 
-    chrome.storage.sync.get({subBlacklist: []}, function(result) {
+    chrome.storage.sync.get({defaultSort: "top"}, result => {
+      document.getElementById("defaultSortSelect").value = result.defaultSort;
+      document.onchange = () => {
+        chrome.storage.sync.set({defaultSort: document.getElementById("defaultSortSelect").value});
+      }
+    })
+
+    chrome.storage.sync.get({subBlacklist: []}, result => {
         result.subBlacklist.forEach(element => {
-            document.querySelector("#blacklist").insertAdjacentHTML("beforeend", "<p class='subEntry'><span class='remove'>&#10006; </span><span class='name'>" + element + "</span></p>");
+            document.getElementById("blacklist").insertAdjacentHTML("beforeend", `<p class='subEntry'><span class='remove'>&#10006; </span><span class='name'>${element}</span></p>`);
         });
     });
 })
@@ -41,15 +48,15 @@ document.addEventListener("click", event => {
     if (target.classList.contains("remove")) {
         parent = target.parentElement;
         let sub = parent.querySelector(".name").textContent;
-        chrome.storage.sync.get({subBlacklist: []}, function(result) {
-            var subBlacklist = result.subBlacklist.filter(word => word != sub);
-            chrome.storage.sync.set({subBlacklist: subBlacklist}, function() {
+        chrome.storage.sync.get({subBlacklist: []}, result => {
+            let subBlacklist = result.subBlacklist.filter(word => word != sub);
+            chrome.storage.sync.set({subBlacklist: subBlacklist}, () => {
                 parent.remove();
             });
         });
     } else if (target.id == "clearButton") {
         document.getElementById("duplicateError").style.display = "none";
-        chrome.storage.sync.remove("subBlacklist", function() {
+        chrome.storage.sync.remove("subBlacklist", () => {
             let blacklist = document.getElementById("blacklist");
             while (blacklist.firstChild) {
                 blacklist.removeChild(blacklist.lastChild);
@@ -60,20 +67,20 @@ document.addEventListener("click", event => {
         sub = document.getElementById('blacklistInput').value.toLowerCase();
         if (subredditPattern.test(sub)) {
             document.getElementById("inputError").style.display = "none";
-            chrome.storage.sync.get({subBlacklist: []}, function(result) {
-                var subBlacklist = result.subBlacklist;
+            chrome.storage.sync.get({subBlacklist: []}, result => {
+                let subBlacklist = result.subBlacklist;
                 if (subBlacklist.includes(sub.toLowerCase())) {
                     document.getElementById("duplicateError").style.display = "block";
                 } else {
                     subBlacklist.push(sub);
-                    chrome.storage.sync.set({subBlacklist: subBlacklist}, function() {
-                        document.getElementById("blacklist").insertAdjacentHTML("beforeend", "<p class='subEntry'><span class='remove'>&#10006; </span><span class='name'>" + sub + "</span></p>");
+                    chrome.storage.sync.set({subBlacklist: subBlacklist}, () => {
+                        document.getElementById("blacklist").insertAdjacentHTML("beforeend", `<p class='subEntry'><span class='remove'>&#10006; </span><span class='name'>${sub}</span></p>`);
                         document.getElementById("blacklistInput").value = "";
                     });
                 }
             });
         } else {
-            document.getElementById("#inputError").show();
+            document.getElementById("inputError").show();
         }
     }
 })
