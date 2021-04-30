@@ -53,6 +53,7 @@ function getMe() {
     if (response.response.data.modhash != null && !response.response.data.is_suspended) {
       modhash = response.response.data.modhash;
       userId = "t2_" + response.response.data.id;
+      document.getElementById("rcfy-container").classList.remove("rcfy-logged-out")
     }
     getThreads();
   })
@@ -543,7 +544,7 @@ function update() {
     }
     chrome.storage.sync.get({collapseOnLoad: "false"}, result => {
       comments.insertAdjacentHTML("beforebegin", `
-      <div id="rcfy-container" ${result.collapseOnLoad == "true" ? "class='rcfy-collapsed'" : ""}>
+      <div id="rcfy-container" class="rcfy-logged-out ${result.collapseOnLoad == "true" ? "rcfy-collapsed" : ""}">
         <div id="rcfy-header">
           <h2><span id="rcfy-thread-expander" onclick="document.getElementById('rcfy-container').classList.toggle('rcfy-collapsed')"></span>&nbsp;${chrome.i18n.getMessage("header")}</h2>
           <h2 id="rcfy-thread-status">${chrome.i18n.getMessage("loadingThreads")}</h2>

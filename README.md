@@ -2,6 +2,8 @@
 
 ![Screenshot of comments](https://files.catbox.moe/m6oxwy.png)
 
+![Chrome Web Store](https://img.shields.io/chrome-web-store/v/oeehccpigolildhagkmlpofjplfajiam) ![Mozilla Add-on](https://img.shields.io/amo/v/reddit-comments-for-youtube)
+
 An extension to display Reddit threads for YouTube videos.
 
 This is a fork of [Lucien Maloney's extension](https://github.com/lucienmaloney/rcfy-container_for_youtube_extension).
