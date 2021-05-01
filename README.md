@@ -2,7 +2,7 @@
 
 ![Screenshot of comments](https://files.catbox.moe/m6oxwy.png)
 
-![Chrome Web Store](https://img.shields.io/chrome-web-store/v/oeehccpigolildhagkmlpofjplfajiam) ![Mozilla Add-on](https://img.shields.io/amo/v/reddit-comments-for-youtube)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/oeehccpigolildhagkmlpofjplfajiam)](https://chrome.google.com/webstore/detail/reddit-comments-for-youtu/oeehccpigolildhagkmlpofjplfajiam) [![Mozilla Add-on](https://img.shields.io/amo/v/reddit-comments-for-youtube)](https://addons.mozilla.org/en-US/firefox/addon/reddit-comments-for-youtube/)
 
 An extension to display Reddit threads for YouTube videos.
 
