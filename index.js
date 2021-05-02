@@ -44,6 +44,14 @@ document.addEventListener("click", event => {
   }
 })
 
+document.addEventListener("keydown", event => {
+  if (event.target.classList.contains("rcfy-textarea")) {
+    if (event.key == "Enter" && (event.ctrlKey || event.metaKey)) {
+      event.target.parentNode.querySelector(".rcfy-save-button").click();
+    }
+  }
+});
+
 function displayError() {
     document.getElementById("rcfy-notice").textContent = navigator.onLine ? chrome.i18n.getMessage("otherError") : chrome.i18n.getMessage("internetError");
 }
@@ -62,8 +70,10 @@ function getMe() {
 function getThreads() {
   chrome.runtime.sendMessage({
     id: "getThreads",
-    videoId: new URL(window.location.href).searchParams.get("v")
+    videoId: new URL(window.location.href).searchParams.get("v"),
+    url: url
   }, response => {
+    if (response.url != url) return;
     const threads = response.response;
     if (threads) {
       chrome.storage.sync.get({subBlacklist: []}, function(result) {
@@ -201,7 +211,8 @@ function getCommments(selector, sort) {
     thread.remove()
   }
   let threadId = selector.value;
-  chrome.runtime.sendMessage({id: "setupComments", threadId: threadId, sort: sort}, response => {
+  chrome.runtime.sendMessage({id: "setupComments", threadId: threadId, sort: sort, url: url}, response => {
+    if (response.url != url) return;
     if (response.response != null) {
       let thread = response.response[0].data.children[0];
       let threadElement = document.createElement("template");
@@ -565,6 +576,6 @@ function update() {
   }
 };
 
-document.addEventListener("DOMContentLoaded", (e) => waitForComments());
-document.addEventListener("yt-navigate-finish", (e) => waitForComments());
-document.addEventListener("spfdone", (e) => waitForComments());
+document.addEventListener("DOMContentLoaded", () => waitForComments());
+document.addEventListener("yt-navigate-finish", () => waitForComments());
+document.addEventListener("spfdone", () => waitForComments());

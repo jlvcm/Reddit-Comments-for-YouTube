@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(
     }
     switch(request.id) {
       case "setupComments":
-        fetch(`https://api.reddit.com/comments/${request.threadId}?sort=${request.sort}`).then(response => response.json()).then(json => sendResponse({response: json}));
+        fetch(`https://api.reddit.com/comments/${request.threadId}?sort=${request.sort}`).then(response => response.json()).then(json => sendResponse({response: json, url: request.url}));
         break;
 
       case "getThreads":
@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(
               response.forEach(thread => threads.push(thread));
             }
           });
-          sendResponse({response: threads})
+          sendResponse({response: threads, url: request.url})
         })
         .catch(() => sendResponse({response: null}));
         break; 
