@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       });
     document.getElementById('hideChildren').onchange = () => {
-        if (this.checked) {
+        if (document.getElementById('hideChildren').checked) {
             chrome.storage.sync.set({childrenHiddenDefault: "true"});
         }
         else {
@@ -20,14 +20,28 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("collapseOnLoad").checked = true;
         };
       });
-      document.getElementById('collapseOnLoad').onchange = () => {
-            if (this.checked) {
+      document.getElementById("collapseOnLoad").onchange = () => {
+            if (document.getElementById("collapseOnLoad").checked) {
                 chrome.storage.sync.set({collapseOnLoad: "true"});
             }
             else {
                 chrome.storage.sync.set({collapseOnLoad: "false"});
             }
     };
+
+    chrome.storage.sync.get({includeNSFW: "false"}, result => {
+        if (result.includeNSFW == "true") {
+            document.getElementById("includeNSFW").checked = true;
+        }
+        document.getElementById("includeNSFW").onchange = () => {
+            if (document.getElementById("includeNSFW").checked) {
+                chrome.storage.sync.set({includeNSFW: "true"});
+            }
+            else {
+                chrome.storage.sync.set({includeNSFW: "false"});
+            }
+        }
+    })
 
     chrome.storage.sync.get({defaultSort: "top"}, result => {
       document.getElementById("defaultSortSelect").value = result.defaultSort;
@@ -38,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chrome.storage.sync.get({subBlacklist: []}, result => {
         result.subBlacklist.forEach(element => {
-            document.getElementById("blacklist").insertAdjacentHTML("beforeend", `<p class='subEntry'><span class='remove'>&#10006; </span><span class='name'>${element}</span></p>`);
+            document.getElementById("blacklist").insertAdjacentHTML("beforeend", `<p class="subEntry"><span class="remove">&#10006; </span><span class="name">${element}</span></p>`);
         });
     });
 })

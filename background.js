@@ -12,7 +12,9 @@ chrome.runtime.onMessage.addListener(
         break;
 
       case "getThreads":
-        let urls = [`https://api.reddit.com/search.json?limit=100&sort=top&q=url:${request.videoId}+site:youtu.be`, `https://api.reddit.com/search.json?limit=100&sort=top&q=url:${request.videoId}+site:youtube.com`]
+        let urls = [
+          `https://api.reddit.com/search.json?limit=100&sort=top&q=url:${request.videoId}+site:youtu.be&include_over_18=${request.includeNSFW}`,
+          `https://api.reddit.com/search.json?limit=100&sort=top&q=url:${request.videoId}+site:youtube.com&include_over_18=${request.includeNSFW}`]
         Promise.all(urls.map(url => getThread(url)))
         .then(promises => {
           const threads = [];

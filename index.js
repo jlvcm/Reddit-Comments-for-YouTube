@@ -68,20 +68,23 @@ function getMe() {
 }
 
 function getThreads() {
-  chrome.runtime.sendMessage({
-    id: "getThreads",
-    videoId: new URL(window.location.href).searchParams.get("v"),
-    url: url
-  }, response => {
-    if (response.url != url) return;
-    const threads = response.response;
-    if (threads) {
-      chrome.storage.sync.get({subBlacklist: []}, function(result) {
-        setupThreadSelector(threads.filter(t => !t.data.promoted).filter(t => !result.subBlacklist.includes(t.data.subreddit.toLowerCase())));
-      });
-    } else {
-      displayError();
-    }
+  chrome.storage.sync.get({includeNSFW: "false"}, result => {
+    chrome.runtime.sendMessage({
+      id: "getThreads",
+      videoId: new URL(window.location.href).searchParams.get("v"),
+      includeNSFW: result.includeNSFW == "true",
+      url: url
+    }, response => {
+      if (response.url != url) return;
+      const threads = response.response;
+      if (threads) {
+        chrome.storage.sync.get({subBlacklist: []}, function(result) {
+          setupThreadSelector(threads.filter(t => !t.data.promoted).filter(t => !result.subBlacklist.includes(t.data.subreddit.toLowerCase())));
+        });
+      } else {
+        displayError();
+      }
+    })
   })
 }
 
