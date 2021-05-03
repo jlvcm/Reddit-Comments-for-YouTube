@@ -152,6 +152,16 @@
   margin-right: 5px;
 }
 
+.rcfy-confirm-delete {
+  color: red;
+  font-weight: normal !important;
+}
+
+.rcfy-deleted-notice {
+  color: var(--yt-primary-text-color) !important;
+  font-weight: normal !important;
+}
+
 .rcfy-author-deleted {
   color: var(--yt-primary-text-color) !important;
 }
@@ -340,7 +350,10 @@ span.rcfy-score {
   line-height: 16px;
 }
 
-.rcfy-comment-buttons > *, .rcfy-permalink-button {
+.rcfy-comment-buttons > *,
+.rcfy-permalink-button,
+.rcfy-confirm-delete-yes-button,
+.rcfy-confirm-delete-no-button {
   color: #888 !important;
 }
 
@@ -348,7 +361,10 @@ span.rcfy-score {
   padding-left: 0px;
 }
 
-.rcfy-comment-buttons > li *, .rcfy-load-more-button {
+.rcfy-comment-buttons > li *,
+.rcfy-confirm-delete-yes-button,
+.rcfy-confirm-delete-no-button,
+.rcfy-load-more-button {
   font-weight: bold;
 }
 
