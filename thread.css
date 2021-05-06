@@ -14,7 +14,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 1px;
-  color: var(--yt-primary-text-color);
+  color: var(--yt-spec-text-primary);
 }
 
 #rcfy-header > * {
@@ -91,7 +91,7 @@
 
 #rcfy-notice {
   text-align: center;
-  color: var(--yt-primary-text-color);
+  color: var(--yt-spec-text-primary);
   margin-top: 10px;
 }
 
@@ -158,12 +158,12 @@
 }
 
 .rcfy-deleted-notice {
-  color: var(--yt-primary-text-color) !important;
+  color: var(--yt-spec-text-primary) !important;
   font-weight: normal !important;
 }
 
 .rcfy-author-deleted {
-  color: var(--yt-primary-text-color) !important;
+  color: var(--yt-spec-text-primary) !important;
 }
 
 .rcfy-comment-submitter,
@@ -192,7 +192,7 @@
 }
 
 .rcfy-title-timestamp-spacer {
-  color: var(--yt-primary-text-color);
+  color: var(--yt-spec-text-primary);
 }
 
 .rcfy-title-timestamp {
@@ -287,10 +287,10 @@ span.rcfy-score {
 
 .rcfy-comment-text {
   font-size: 14px;
-  color: var(--yt-primary-text-color);
+  color: var(--yt-spec-text-primary);
 }
 
-.rcfy-comment-text p {
+.rcfy-comment-text * {
   margin: 5px 0px;
 }
 
@@ -431,14 +431,14 @@ div[rcfy-is-archived="true"] .rcfy-arrow {
 
 /* Start dark mode */
 html[dark] #rcfy-thread-selector {
-  color: var(--yt-primary-text-color);
+  color: var(--yt-spec-text-primary);
   background-color: #444444;
   border-color: #444444;
   border-radius: 2px;
 }
 
 html[dark] #rcfy-container select {
-  color: var(--yt-primary-text-color);
+  color: var(--yt-spec-text-primary);
   background-color: #444444;
   border-color: #444444;
 }
