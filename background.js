@@ -39,6 +39,10 @@ chrome.runtime.onMessage.addListener(
         fetch("https://api.reddit.com/api/me.json").then(response => response.json()).then(json => sendResponse({response: json}));
         break;
 
+      case "getSub":
+        fetch(`https://api.reddit.com/r/${request.subreddit}/about.json`).then(response => response.json()).then(json => sendResponse({response: json}));
+        break;
+
       case "vote":
         fetch("https://api.reddit.com/api/vote", {
           method: "POST",

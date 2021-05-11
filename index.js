@@ -1,6 +1,7 @@
 let url;
 let modhash = "";
 let userId = "";
+let banned = false;
 
 document.addEventListener("click", event => {
   let target = event.target;
@@ -214,63 +215,66 @@ function getCommments(selector, sort) {
     thread.remove()
   }
   let threadId = selector.value;
-  chrome.runtime.sendMessage({id: "setupComments", threadId: threadId, sort: sort, url: url}, response => {
-    if (response.url != url) return;
-    if (response.response != null) {
-      let thread = response.response[0].data.children[0];
-      let threadElement = document.createElement("template");
-      let scores = getScores(thread);
-      threadElement.innerHTML = `<div id="rcfy-thread" rcfy-is-archived="${thread.data.archived}" rcfy-fullname="${thread.data.name}">
-        <div id="rcfy-thread-header" class="${getVotedClass(thread.data.likes)}" rcfy-fullname="${thread.data.name}">
-          <div id="rcfy-thread-arrows">
-            <div class="rcfy-arrow rcfy-upvote"></div>
-            <div class="rcfy-score rcfy-score-downvoted">${scores[0]}</div>
-            <div class="rcfy-score rcfy-score-unvoted">${scores[1]}</div>
-            <div class="rcfy-score rcfy-score-upvoted">${scores[2]}</div>
-            <div class="rcfy-arrow rcfy-downvote"></div>
+  chrome.runtime.sendMessage({id: "getSub", subreddit: selector.getAttribute("subreddit")}, subredditResponse => {
+    banned = subredditResponse.response.data.user_is_banned;
+    chrome.runtime.sendMessage({id: "setupComments", threadId: threadId, sort: sort, url: url}, response => {
+      if (response.url != url) return;
+      if (response.response != null) {
+        let thread = response.response[0].data.children[0];
+        let threadElement = document.createElement("template");
+        let scores = getScores(thread);
+        threadElement.innerHTML = `<div id="rcfy-thread" rcfy-is-archived="${thread.data.archived}" rcfy-fullname="${thread.data.name}">
+          <div id="rcfy-thread-header" class="${getVotedClass(thread.data.likes)}" rcfy-fullname="${thread.data.name}">
+            <div id="rcfy-thread-arrows">
+              <div class="rcfy-arrow rcfy-upvote"></div>
+              <div class="rcfy-score rcfy-score-downvoted">${scores[0]}</div>
+              <div class="rcfy-score rcfy-score-unvoted">${scores[1]}</div>
+              <div class="rcfy-score rcfy-score-upvoted">${scores[2]}</div>
+              <div class="rcfy-arrow rcfy-downvote"></div>
+            </div>
+            <p id="rcfy-thread-title"><a href="https://www.reddit.com${thread.data.permalink}" target="_blank">${thread.data.title}</a> ${selector.getAttribute("timestamp") == "" ? "" : createTimeStamp(selector.getAttribute("timestamp"))}</p>
+            <p id="rcfy-thread-tagline" class="rcfy-tagline">${chrome.i18n.getMessage("threadTagline", [timestampToRelativeTime(thread.data.created_utc), thread.data.author, thread.data.subreddit])}${getAwards(thread.data)}</p>
           </div>
-          <p id="rcfy-thread-title"><a href="https://www.reddit.com${thread.data.permalink}" target="_blank">${thread.data.title}</a> ${selector.getAttribute("timestamp") == "" ? "" : createTimeStamp(selector.getAttribute("timestamp"))}</p>
-          <p id="rcfy-thread-tagline" class="rcfy-tagline">${chrome.i18n.getMessage("threadTagline", [timestampToRelativeTime(thread.data.created_utc), thread.data.author, thread.data.subreddit])}${getAwards(thread.data)}</p>
-        </div>
-        <div id="rcfy-sort-comments">
-          <span>${chrome.i18n.getMessage("sortedBy")}</span>
-          <select id="rcfy-sort-comments-selector" value="${sort}">
-            <option value="confidence">${chrome.i18n.getMessage("best")}</option>
-            <option value="top">${chrome.i18n.getMessage("top")}</option>
-            <option value="new">${chrome.i18n.getMessage("new")}</option>
-            <option value="controversial">${chrome.i18n.getMessage("controversial")}</option>
-            <option value="old">${chrome.i18n.getMessage("old")}</option>
-            <option value="qa">${chrome.i18n.getMessage("qa")}</option>
-          </select>
-        </div>
-        ${modhash != "" && !thread.data.archived && !thread.data.locked ? createTextBox(true) : ""}
-        <div id="rcfy-comments"></div></div>`
-      
-      response.response[1].data.children.forEach(item => {
-        threadElement.content.querySelector("#rcfy-comments").appendChild(processComment(item));
-      })
+          <div id="rcfy-sort-comments">
+            <span>${chrome.i18n.getMessage("sortedBy")}</span>
+            <select id="rcfy-sort-comments-selector" value="${sort}">
+              <option value="confidence">${chrome.i18n.getMessage("best")}</option>
+              <option value="top">${chrome.i18n.getMessage("top")}</option>
+              <option value="new">${chrome.i18n.getMessage("new")}</option>
+              <option value="controversial">${chrome.i18n.getMessage("controversial")}</option>
+              <option value="old">${chrome.i18n.getMessage("old")}</option>
+              <option value="qa">${chrome.i18n.getMessage("qa")}</option>
+            </select>
+          </div>
+          ${modhash != "" && !thread.data.archived && !thread.data.locked && !banned ? createTextBox(true) : ""}
+          <div id="rcfy-comments"></div></div>`
+        
+        response.response[1].data.children.forEach(item => {
+          threadElement.content.querySelector("#rcfy-comments").appendChild(processComment(item));
+        })
 
-      let commentSortSelector = threadElement.content.querySelector("#rcfy-sort-comments-selector");
-      commentSortSelector.value = sort;
-      commentSortSelector.onchange = () => {
-        getCommments(selector, commentSortSelector.querySelector("option:checked").value);
+        let commentSortSelector = threadElement.content.querySelector("#rcfy-sort-comments-selector");
+        commentSortSelector.value = sort;
+        commentSortSelector.onchange = () => {
+          getCommments(selector, commentSortSelector.querySelector("option:checked").value);
+        }
+
+        chrome.storage.sync.get({childrenHiddenDefault: "false"}, result => {
+            if (result.childrenHiddenDefault == "true") {
+              threadElement.content.querySelectorAll("#rcfy-comments > .rcfy-comment").forEach(item => {
+                if (item.querySelector(".rcfy-comment-children .rcfy-comment")) {
+                  item.classList.add("rcfy-children-hidden");
+                  item.querySelector(".rcfy-toggle-children-button").textContent = chrome.i18n.getMessage("showChildComments");
+                }
+              });
+            }
+            document.getElementById("rcfy-notice").classList.add("rcfy-notice-hidden");
+            document.getElementById("rcfy-container").appendChild(threadElement.content);
+        })
+      } else {
+        displayError();
       }
-
-      chrome.storage.sync.get({childrenHiddenDefault: "false"}, result => {
-          if (result.childrenHiddenDefault == "true") {
-            threadElement.content.querySelectorAll("#rcfy-comments > .rcfy-comment").forEach(item => {
-              if (item.querySelector(".rcfy-comment-children .rcfy-comment")) {
-                item.classList.add("rcfy-children-hidden");
-                item.querySelector(".rcfy-toggle-children-button").textContent = chrome.i18n.getMessage("showChildComments");
-              }
-            });
-          }
-          document.getElementById("rcfy-notice").classList.add("rcfy-notice-hidden");
-          document.getElementById("rcfy-container").appendChild(threadElement.content);
-      })
-    } else {
-      displayError();
-    }
+    })
   })
 }
 
@@ -338,7 +342,7 @@ function processComment(comment) {
           <li><span class="rcfy-edit-button">${chrome.i18n.getMessage("edit")}</a></li>
           <li><span class="rcfy-delete-button">${chrome.i18n.getMessage("delete")}</span><span class="rcfy-confirm-delete">${chrome.i18n.getMessage("confirmDelete")}</span><span class="rcfy-deleted-notice">${chrome.i18n.getMessage("deleted")}</li>
           ` : ""}
-          ${modhash != "" && !comment.data.locked && !comment.data.archived && comment.data.score != null ? `<li><span class="rcfy-reply-button">${chrome.i18n.getMessage("reply")}</span></li>` : ""}
+          ${modhash != "" && !comment.data.locked && !comment.data.archived && comment.data.score != null && !banned ? `<li><span class="rcfy-reply-button">${chrome.i18n.getMessage("reply")}</span></li>` : ""}
           ${comment.data.replies != "" && comment.data.replies.data.children[0].kind == "t1" ? `<li><span class="rcfy-toggle-children-button">${chrome.i18n.getMessage("hideChildComments")}</span></li>` : ""}
         </ul>
         </div><div class="rcfy-comment-children"></div></div>`
