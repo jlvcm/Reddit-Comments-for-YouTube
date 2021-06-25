@@ -31,6 +31,9 @@
   "noThreads": {
     "message": "No threads found."
   },
+  "error": {
+    "message": "Error"
+  },
   "internetError": {
     "message": "Internet connection error. Please check your connection and reload the page."
   },

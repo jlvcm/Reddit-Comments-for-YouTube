@@ -53,13 +53,17 @@ document.addEventListener("keydown", event => {
   }
 });
 
-function displayError() {
-    document.getElementById("rcfy-notice").textContent = navigator.onLine ? chrome.i18n.getMessage("otherError") : chrome.i18n.getMessage("internetError");
+function displayError(threads = false) {
+  if (threads) {
+    document.getElementById("rcfy-thread-status").textContent = chrome.i18n.getMessage("error");
+  }
+  document.getElementById("rcfy-notice").classList.remove("rcfy-notice-hidden");
+  document.getElementById("rcfy-notice").textContent = navigator.onLine ? chrome.i18n.getMessage("otherError") : chrome.i18n.getMessage("internetError");
 }
 
 function getMe() {
   chrome.runtime.sendMessage({id: "getMe"}, response => {
-    if (response.response.data.modhash != null && !response.response.data.is_suspended) {
+    if (response.response && response.response.data.modhash != null && !response.response.data.is_suspended) {
       modhash = response.response.data.modhash;
       userId = "t2_" + response.response.data.id;
       document.getElementById("rcfy-container").classList.remove("rcfy-logged-out")
@@ -76,14 +80,14 @@ function getThreads() {
       includeNSFW: result.includeNSFW == "true",
       url: url
     }, response => {
-      if (response.url != url) return;
       const threads = response.response;
       if (threads) {
+        if (response.url != url) return;
         chrome.storage.sync.get({subBlacklist: []}, function(result) {
           setupThreadSelector(threads.filter(t => !t.data.promoted).filter(t => !result.subBlacklist.includes(t.data.subreddit.toLowerCase())));
         });
       } else {
-        displayError();
+        displayError(true);
       }
     })
   })
