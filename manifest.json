@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",
-  "version": "2.0.3.4",
+  "version": "2.0.3.5",
   "permissions": ["*://www.youtube.com/", "https://api.reddit.com/", "storage"],
   "content_scripts": [{
     "matches": ["https://www.youtube.com/*"],
