@@ -1,10 +1,11 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",
-  "version": "2.0.3.5",
-  "permissions": ["*://www.youtube.com/", "https://api.reddit.com/", "storage"],
+  "version": "2.1",
+  "permissions": ["storage"],
+  "host_permissions": ["*://www.youtube.com/", "https://api.reddit.com/"],
   "content_scripts": [{
     "matches": ["https://www.youtube.com/*"],
     "js": ["index.js"],
@@ -12,8 +13,7 @@
     "run_at": "document_start"
   }],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
   "icons": {
     "16": "16px_icon.png",
