@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",
-  "version": "2.1",
+  "version": "2.3",
   "permissions": ["storage"],
   "host_permissions": ["*://www.youtube.com/", "https://api.reddit.com/"],
   "content_scripts": [{
@@ -31,5 +31,4 @@
       "id": "{cc2cbbd2-14d9-4260-b78d-ed166ca4e6cc}"
     }
   }
-  
 }

@@ -76,7 +76,7 @@ function getThreads() {
   chrome.storage.sync.get({includeNSFW: "false"}, result => {
     chrome.runtime.sendMessage({
       id: "getThreads",
-      videoId: new URL(window.location.href).searchParams.get("v"),
+      videoId: window.location.href.match(/(?:v=|shorts\/)([a-zA-Z0-9\-_]{11})/)[1],
       includeNSFW: result.includeNSFW == "true",
       url: url
     }, response => {
@@ -542,7 +542,7 @@ function timestampToRelativeTime(timestamp) {
 }
 
 function waitForComments() {
-  if (window.location.href !== url && window.location.href.match(/v=/)) {
+  if (window.location.href !== url && window.location.href.match(/(v=|shorts\/)[a-zA-Z0-9\-_]{11}/)) {
     const promise = new Promise(resolve => {
       const intervalId = setInterval(() => {
         if (document.getElementById("comments")) {
