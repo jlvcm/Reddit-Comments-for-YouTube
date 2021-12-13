@@ -299,11 +299,7 @@ function createTimeStamp(time) {
   let remaining = time % 3600;
   let minutes = Math.floor(remaining / 60);
   let seconds = remaining % 60;
-  let timestamp = "";
-  if (hours > 0) {
-    timestamp += `${hours}:`
-  }
-  timestamp += `${minutes}:${("0" + seconds).slice(-2)}`
+  let timestamp = `${hours > 0 ? hours + ":" + ("0" + minutes).slice(-2) : minutes}:${("0" + seconds).slice(-2)}`
   return `<span class="rcfy-title-timestamp-spacer"> -- </span> <span class="rcfy-title-timestamp" onclick="document.getElementsByClassName('video-stream')[0].currentTime = ${time}">[${timestamp}]</title>`;
 }
 
