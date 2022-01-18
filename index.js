@@ -139,6 +139,38 @@ function sortThreads() {
   }
 }
 
+function parseTimestamp(timestamp) {
+  if (isNaN(timestamp)) {
+    if (timestamp.includes(":")) {
+      let sections = timestamp.split(":");
+      if (sections.length == 3) {
+        console.log("true")
+        return (3600 * parseInt(sections[0])) + (60 * parseInt(sections[1])) + parseInt(sections[2]);
+      } else {
+        console.log("false")
+        return (60 * parseInt(sections[0])) + parseInt(sections[1]);
+      }
+    } else {
+      let newTime = 0;
+      let hours = timestamp.match(/\d*h/);
+      let minutes = timestamp.match(/\d*m/);
+      let seconds = timestamp.match(/\d*s/);
+      if (hours) {
+        newTime += (parseInt(hours[0]) * 3600);
+      }
+      if (minutes) {
+        newTime += (parseInt(minutes[0]) * 60);
+      }
+      if (seconds) {
+        newTime += (parseInt(seconds[0]));
+      }
+      return newTime;
+    }
+  } else {
+    return parseInt(timestamp);
+  }
+}
+
 function setupThreadSelector(threads) {
   if (threads.length == 0) {
     document.getElementById("rcfy-notice").textContent = chrome.i18n.getMessage("noThreads");
@@ -165,24 +197,7 @@ function setupThreadSelector(threads) {
       let linkedTimestamp = url.searchParams.get("t");
       
       if (linkedTimestamp) {
-        if (isNaN(linkedTimestamp)) {
-          let newTime = 0;
-          let hours = linkedTimestamp.match(/\d*h/);
-          let minutes = linkedTimestamp.match(/\d*m/);
-          let seconds = linkedTimestamp.match(/\d*s/);
-          if (hours) {
-            newTime += (parseInt(hours[0]) * 3600);
-          }
-          if (minutes) {
-            newTime += (parseInt(minutes[0]) * 60);
-          }
-          if (seconds) {
-            newTime += (parseInt(seconds[0]));
-          }
-          linkedTimestamp = newTime;
-        } else {
-          linkedTimestamp = parseInt(linkedTimestamp);
-        }
+        linkedTimestamp = parseTimestamp(linkedTimestamp);
       } else {
         linkedTimestamp = "";
       }
@@ -236,7 +251,7 @@ function getCommments(selector, sort) {
               <div class="rcfy-score rcfy-score-upvoted">${scores[2]}</div>
               <div class="rcfy-arrow rcfy-downvote"></div>
             </div>
-            <p id="rcfy-thread-title"><a href="https://www.reddit.com${thread.data.permalink}" target="_blank">${thread.data.title}</a> ${selector.getAttribute("timestamp") == "" ? "" : createTimeStamp(selector.getAttribute("timestamp"))}</p>
+            <p id="rcfy-thread-title"><a href="https://www.reddit.com${thread.data.permalink}" target="_blank">${thread.data.title}</a> ${selector.getAttribute("timestamp") == "" ? "" : createTimeStamp(selector.getAttribute("timestamp"), false)}</p>
             <p id="rcfy-thread-tagline" class="rcfy-tagline">${chrome.i18n.getMessage("threadTagline", [timestampToRelativeTime(thread.data.created_utc), thread.data.author, thread.data.subreddit])}${getAwards(thread.data)}</p>
           </div>
           <div id="rcfy-sort-comments">
@@ -294,13 +309,31 @@ function createTextBox(isOp = false, isEdit = false, editText = "") {
   return commentBox;
 }
 
-function createTimeStamp(time) {
+function createTimeStamp(time, isComment) {
+  console.log(time)
   let hours = Math.floor(time / 3600);
   let remaining = time % 3600;
   let minutes = Math.floor(remaining / 60);
   let seconds = remaining % 60;
   let timestamp = `${hours > 0 ? hours + ":" + ("0" + minutes).slice(-2) : minutes}:${("0" + seconds).slice(-2)}`
-  return `<span class="rcfy-title-timestamp-spacer"> -- </span> <span class="rcfy-title-timestamp" onclick="document.getElementsByClassName('video-stream')[0].currentTime = ${time}">[${timestamp}]</title>`;
+  if (isComment) {
+    return `&lt;span class=\"rcfy-comment-timestamp\" onclick=\"document.getElementsByClassName('video-stream')[0].currentTime = ${time}\"&gt; [${timestamp}] &lt;/span&gt;`;
+  } else {
+    return `<span class="rcfy-title-timestamp-spacer"> -- </span> <span class="rcfy-title-timestamp" onclick="document.getElementsByClassName('video-stream')[0].currentTime = ${time}">[${timestamp}]</span>`;
+  }
+}
+
+function commentText(html) {
+  let textTimestampRegex = /(?:\s|^)[0-5]?\d(?::[0-5]?\d){1,2}(?:\s|$)/g;
+  let textTimestamps = [...html.matchAll(textTimestampRegex)];
+  let textTimestampReplacements = [...textTimestamps.map(entry => {return createTimeStamp(parseTimestamp(entry[0]), true)})];
+  let textTimestampIndex = 0;
+
+  return html
+  .replaceAll("&lt;a href=\"/", "&lt;a href=\"https://www.reddit.com/")
+  .replaceAll("class=\"md\"", "class=\"rcfy-comment-text\"")
+  .replaceAll("class=\"md-spoiler-text\"", "class=\"rcfy-spoiler\"")
+  .replaceAll(textTimestampRegex, () => {return textTimestampReplacements[textTimestampIndex++]});
 }
 
 function processComment(comment) {
@@ -329,10 +362,7 @@ function processComment(comment) {
           ${getAwards(comment.data)}
           ${comment.data.stickied ? `<span class="rcfy-stickied">${chrome.i18n.getMessage("stickiedComment")}</span>` : ""}
         </p>
-        ${new DOMParser().parseFromString(comment.data.body_html
-          .replaceAll("&lt;a href=\"/", "&lt;a href=\"https://www.reddit.com/")
-          .replaceAll("class=\"md\"", "class=\"rcfy-comment-text\"")
-          .replaceAll("class=\"md-spoiler-text\"", "class=\"rcfy-spoiler\""),
+        ${new DOMParser().parseFromString(commentText(comment.data.body_html),
           "text/html").body.textContent}
         ${createTextBox(false, true, comment.data.body)}
         <ul class="rcfy-comment-buttons">
@@ -349,11 +379,15 @@ function processComment(comment) {
     commentElement.content.querySelectorAll(".rcfy-comment-text a").forEach(item => {
       item.target = "_blank"
     })
-    
+    commentElement.content.querySelectorAll(`.rcfy-comment-text a[href*="${window.location.href.match(/(?:v=|shorts\/)([a-zA-Z0-9\-_]{11})/)[1]}"]`).forEach(item => {
+      if (time = new URL(item.href).searchParams.get("t")) {
+        item.outerHTML = `${item.href != item.textContent ? item.textContent : ""}${new DOMParser().parseFromString(createTimeStamp(parseTimestamp(time), true), "text/html").body.textContent}`
+      }
+    });
     if (comment.data.replies != "") {
       comment.data.replies.data.children.forEach(item => {
         commentElement.content.querySelector(".rcfy-comment-children").appendChild(processComment(item));
-      })
+      });
     }
   } else if (comment.kind == "more") {
     commentElement.innerHTML = `<span class="rcfy-load-more-button" rcfy-fullname="${comment.data.name}" rcfy-children="${comment.data.children.join()}">${chrome.i18n.getMessage("loadMoreComments", [comment.data.count])}</span>`

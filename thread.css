@@ -195,7 +195,7 @@
   color: var(--yt-spec-text-primary);
 }
 
-.rcfy-title-timestamp {
+.rcfy-title-timestamp, .rcfy-comment-timestamp {
   cursor: pointer;
   color: var(--yt-spec-call-to-action);
 }
