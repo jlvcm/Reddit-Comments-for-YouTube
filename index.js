@@ -381,7 +381,7 @@ function processComment(comment) {
     })
     commentElement.content.querySelectorAll(`.rcfy-comment-text a[href*="${window.location.href.match(/(?:v=|shorts\/)([a-zA-Z0-9\-_]{11})/)[1]}"]`).forEach(item => {
       if (time = new URL(item.href).searchParams.get("t")) {
-        item.outerHTML = `${item.href != item.textContent ? item.textContent : ""}${new DOMParser().parseFromString(createTimeStamp(parseTimestamp(time), true), "text/html").body.textContent}`
+        item.outerHTML = `${!item.textContent.match(/(?:\s|^)[0-5]?\d(?::[0-5]?\d){1,2}(?:\s|$)/g) ? item.textContent : ""}${new DOMParser().parseFromString(createTimeStamp(parseTimestamp(time), true), "text/html").body.textContent}`
       }
     });
     if (comment.data.replies != "") {
