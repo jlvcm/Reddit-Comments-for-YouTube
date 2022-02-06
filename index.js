@@ -324,7 +324,7 @@ function createTimeStamp(time, isComment) {
 }
 
 function commentText(html) {
-  let textTimestampRegex = /(?:\s|^)[0-5]?\d(?::[0-5]?\d){1,2}(?:\s|$)/g;
+  let textTimestampRegex = /(?<=\s|^|;)[0-5]?\d(?::[0-5]?\d){1,2}(?=\s|$|&)/g;
   let textTimestamps = [...html.matchAll(textTimestampRegex)];
   let textTimestampReplacements = [...textTimestamps.map(entry => {return createTimeStamp(parseTimestamp(entry[0]), true)})];
   let textTimestampIndex = 0;
