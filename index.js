@@ -580,6 +580,7 @@ async function getCommentsForVideo(videoUrl) {
         resolve(null);
       }
       else if (comments) {
+        clearInterval(intervalId);
         resolve(comments);
       }
     }, 200);
