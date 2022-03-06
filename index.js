@@ -571,26 +571,29 @@ function timestampToRelativeTime(timestamp) {
   }
 }
 
-function waitForComments() {
-  if (window.location.href !== url && window.location.href.match(/(v=|shorts\/)[a-zA-Z0-9\-_]{11}/)) {
-    const promise = new Promise(resolve => {
-      const intervalId = setInterval(() => {
-        if (document.getElementById("comments")) {
-          clearInterval(intervalId);
-          resolve();
-        }
-      }, 200);
-    });
-    promise.then(update());
-  }
+async function getCommentsForVideo(videoUrl) {
+  return document.getElementById("comments") || new Promise(resolve => {
+    const intervalId = setInterval(() => {
+      const comments = document.getElementById("comments");
+      if(videoUrl !== window.location.href){
+        clearInterval(intervalId);
+        resolve(null);
+      }
+      else if (comments) {
+        clearInterval(intervalId);
+        resolve(comments);
+      }
+    }, 200);
+  });
 }
 
-function update() {
-  let comments = document.getElementById("comments");
-  if (!comments) {
-    waitForComments();
-  } else {
-    url = window.location.href;
+async function update() {
+  if (window.location.href === url || !window.location.href.match(/(v=|shorts\/)[a-zA-Z0-9\-_]{11}/)) {
+    return;
+  }
+  url = window.location.href;
+  const comments = await getCommentsForVideo(url)
+  if (comments) {
     if (rcfyContainer = document.getElementById("rcfy-container")) {
       rcfyContainer.remove();
     }
@@ -617,6 +620,6 @@ function update() {
   }
 };
 
-document.addEventListener("DOMContentLoaded", () => waitForComments());
-document.addEventListener("yt-navigate-finish", () => waitForComments());
-document.addEventListener("spfdone", () => waitForComments());
+document.addEventListener("DOMContentLoaded", () => update());
+document.addEventListener("yt-navigate-finish", () => update());
+document.addEventListener("spfdone", () => update());
