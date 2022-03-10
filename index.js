@@ -213,6 +213,7 @@ function setupThreadSelector(threads) {
         >${prefix}${spaces} ${title}</option>`;
     });
     threadSelectorString += "</select>"
+    if (document.getElementById("rcfy-thread-selector")) return;
     document.getElementById("rcfy-header").insertAdjacentHTML("afterend", threadSelectorString)
     let threadSelector = document.getElementById("rcfy-thread-selector");
     threadSelector.onchange = () => {
@@ -317,14 +318,14 @@ function createTimeStamp(time, isComment) {
   let seconds = remaining % 60;
   let timestamp = `${hours > 0 ? hours + ":" + ("0" + minutes).slice(-2) : minutes}:${("0" + seconds).slice(-2)}`
   if (isComment) {
-    return `&lt;span class=\"rcfy-comment-timestamp\" onclick=\"document.getElementsByClassName('video-stream')[0].currentTime = ${time}\"&gt; [${timestamp}] &lt;/span&gt;`;
+    return `&lt;span class=\"rcfy-comment-timestamp\" onclick=\"document.getElementsByClassName('video-stream')[0].currentTime = ${time}\"&gt;[${timestamp}]&lt;/span&gt;`;
   } else {
     return `<span class="rcfy-title-timestamp-spacer"> -- </span> <span class="rcfy-title-timestamp" onclick="document.getElementsByClassName('video-stream')[0].currentTime = ${time}">[${timestamp}]</span>`;
   }
 }
 
 function commentText(html) {
-  let textTimestampRegex = /(?<=\s|^|;)[0-5]?\d(?::[0-5]?\d){1,2}(?=\s|$|&)/g;
+  let textTimestampRegex = /(?<=\s|^|;)[0-5]?\d(?::[0-5]?\d){1,2}(?=\s|$|&|\.)/g;
   let textTimestamps = [...html.matchAll(textTimestampRegex)];
   let textTimestampReplacements = [...textTimestamps.map(entry => {return createTimeStamp(parseTimestamp(entry[0]), true)})];
   let textTimestampIndex = 0;
@@ -381,7 +382,7 @@ function processComment(comment) {
     })
     commentElement.content.querySelectorAll(`.rcfy-comment-text a[href*="${window.location.href.match(/(?:v=|shorts\/)([a-zA-Z0-9\-_]{11})/)[1]}"]`).forEach(item => {
       if (time = new URL(item.href).searchParams.get("t")) {
-        item.outerHTML = `${!item.textContent.match(/(?:\s|^)[0-5]?\d(?::[0-5]?\d){1,2}(?:\s|$)/g) ? item.textContent : ""}${new DOMParser().parseFromString(createTimeStamp(parseTimestamp(time), true), "text/html").body.textContent}`
+        item.outerHTML = `${!item.textContent.match(/((?:\s|^|\[)[0-5]?\d(?::[0-5]?\d){1,2}(?:\s|$|\])|\?t=\d+)/g) ? item.textContent : ""} ${new DOMParser().parseFromString(createTimeStamp(parseTimestamp(time), true), "text/html").body.textContent}`;
       }
     });
     if (comment.data.replies != "") {
